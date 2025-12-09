@@ -46,11 +46,10 @@
     upgradeButton.addEventListener('click', () => {
       if (clicks >= upgradePrice) {
         clicks -= upgradePrice;
-        upgradePrice += 10;
-        clicksPerSecond++;
+        upgradePrice += 10; // Price increases by 10 each time
+        clicksPerSecond = clicksPerSecond === 0 ? 1 : clicksPerSecond * 2; // CPS doubles each purchase
         saveProgress();
         updateDisplay();
-        upgradeButton.textContent = `Buy Upgrade: ${upgradePrice} clicks`;
       }
     });
 
@@ -66,7 +65,7 @@
       localStorage.setItem('clicksPerSecond', clicksPerSecond);
     }
 
-    // Always running - increments by clicksPerSecond per second
+    // Auto clicker: increments by clicksPerSecond per second
     setInterval(() => {
       if (clicksPerSecond > 0) {
         clicks += clicksPerSecond;
