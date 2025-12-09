@@ -53,6 +53,19 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+        #circle {
+            width: 100px;
+            height: 100px;
+            background-color: #3498db;
+            border-radius: 50%;
+            margin: 20px auto;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        #circle:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -69,17 +82,17 @@
         let colorInterval;
         let clicks = 0;
         let upgradePrice = 10;
-        let autoClickInterval = null;
         let clicksPerSecond = 0;
-        
+
         const upgradeButton = document.getElementById('upgradeButton');
         const clickCountDisplay = document.getElementById('clickCount');
-        
-        document.getElementById('circle').addEventListener('click', () => {
+        const circle = document.getElementById('circle');
+
+        circle.addEventListener('click', () => {
             clicks++;
             updateDisplay();
         });
-        
+
         upgradeButton.addEventListener('click', () => {
             if (clicks >= upgradePrice) {
                 clicks -= upgradePrice;
@@ -87,29 +100,20 @@
                 clicksPerSecond++;
                 updateDisplay();
                 upgradeButton.textContent = `Buy Upgrade: ${upgradePrice} clicks`;
-                
-                // Clear existing interval and start new one with updated rate
-                if (autoClickInterval) {
-                    clearInterval(autoClickInterval);
-                }
-                autoClickInterval = setInterval(() => {
-                    clicks += clicksPerSecond;
-                    updateDisplay();
-                }, 1000);
             }
         });
-        
+
         function updateDisplay() {
             clickCountDisplay.textContent = `Clicks: ${clicks}`;
-            
-            // Disable button if not enough clicks
-            if (clicks < upgradePrice) {
-                upgradeButton.disabled = true;
-            } else {
-                upgradeButton.disabled = false;
-            }
+            upgradeButton.disabled = clicks < upgradePrice;
         }
-        
+
+        // Always running - increments by clicksPerSecond per second
+        setInterval(() => {
+            clicks += clicksPerSecond;
+            updateDisplay();
+        }, 1000);
+
         function toggleColorChange() {
             if (colorInterval) {
                 clearInterval(colorInterval);
@@ -123,22 +127,9 @@
                 }, 1000);
             }
         }
-    </script>
 
-    <style>
-        #circle {
-            width: 100px;
-            height: 100px;
-            background-color: #3498db;
-            border-radius: 50%;
-            margin: 20px auto;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        #circle:hover {
-            transform: scale(1.1);
-        }
-    </style>
+        // Initial display update for button state
+        updateDisplay();
+    </script>
 </body>
 </html>
