@@ -72,8 +72,8 @@
     upgradeButton.addEventListener('click', () => {
       if (clicks >= Math.ceil(upgradePrice)) {
         clicks -= Math.ceil(upgradePrice);
-        upgradePrice = upgradePrice * 1.3; // Price multiplies 
-        clicksPerSecond = clicksPerSecond === 0 ? 1 : clicksPerSecond * 1.1;
+        upgradePrice = upgradePrice * 1.25; // Price multiplies 
+        clicksPerSecond = clicksPerSecond === 0 ? 1 : clicksPerSecond * 1.2;
         saveProgress();
         updateDisplay();
       }
