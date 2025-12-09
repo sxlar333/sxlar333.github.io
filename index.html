@@ -69,6 +69,8 @@
         let colorInterval;
         let clicks = 0;
         let upgradePrice = 10;
+        let autoClickInterval = null;
+        let clicksPerSecond = 0;
         
         const upgradeButton = document.getElementById('upgradeButton');
         const clickCountDisplay = document.getElementById('clickCount');
@@ -82,8 +84,18 @@
             if (clicks >= upgradePrice) {
                 clicks -= upgradePrice;
                 upgradePrice += 10;
+                clicksPerSecond++;
                 updateDisplay();
                 upgradeButton.textContent = `Buy Upgrade: ${upgradePrice} clicks`;
+                
+                // Clear existing interval and start new one with updated rate
+                if (autoClickInterval) {
+                    clearInterval(autoClickInterval);
+                }
+                autoClickInterval = setInterval(() => {
+                    clicks += clicksPerSecond;
+                    updateDisplay();
+                }, 1000);
             }
         });
         
