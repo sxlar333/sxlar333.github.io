@@ -1,135 +1,96 @@
 <!DOCTYPE html>
-<!-- This is the document type declaration for HTML5. It informs the browser about the type of document and version of HTML being used. -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 2</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            transition: background-color 0.3s;
-        }
-        
-        .container {
-            text-align: center;
-        }
-        
-        h1 {
-            font-size: 48px;
-            margin-bottom: 30px;
-        }
-        
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px;
-        }
-        
-        #upgradeButton {
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #f39c12;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-bottom: 20px;
-        }
-        
-        #upgradeButton:hover:not(:disabled) {
-            background-color: #e67e22;
-        }
-        
-        #upgradeButton:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        #circle {
-            width: 100px;
-            height: 100px;
-            background-color: #3498db;
-            border-radius: 50%;
-            margin: 20px auto;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        #circle:hover {
-            transform: scale(1.1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page 2</title>
+  <style>
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: Arial, sans-serif; transition: background-color 0.3s; }
+    .container { text-align: center; }
+    h1 { font-size: 48px; margin-bottom: 30px; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 10px; }
+    #upgradeButton { padding: 15px 30px; font-size: 18px; background-color: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.2s; margin-bottom: 20px; }
+    #upgradeButton:hover:not(:disabled) { background-color: #e67e22; }
+    #upgradeButton:disabled { background-color: #95a5a6; cursor: not-allowed; opacity: 0.6; }
+    #circle { width: 100px; height: 100px; background-color: #3498db; border-radius: 50%; margin: 20px auto; cursor: pointer; transition: transform 0.2s; }
+    #circle:hover { transform: scale(1.1); }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <button id="upgradeButton">Buy Upgrade: 10 clicks</button>
-        <p id="clickCount">Clicks: 0</p>
-        <div id="circle"></div>
-        <h1>my html website is very epik</h1>
-        <button onclick="window.location.href='test.html'">Return to test.html</button>
-        <button onclick="toggleColorChange()">Change Background Color</button>
-    </div>
+  <div class="container">
+    <button id="upgradeButton">Buy Upgrade: 10 clicks</button>
+    <p id="clickCount">Clicks: 0</p>
+    <div id="circle"></div>
+    <h1>my html website is very epik</h1>
+    <button onclick="window.location.href='test.html'">Return to test.html</button>
+    <button onclick="toggleColorChange()">Change Background Color</button>
+  </div>
 
-    <script>
-        let colorInterval;
-        let clicks = 0;
-        let upgradePrice = 10;
-        let clicksPerSecond = 0;
+  <script>
+    let colorInterval;
+    // Load from localStorage, or defaults
+    let clicks = parseInt(localStorage.getItem('clicks')) || 0;
+    let upgradePrice = parseInt(localStorage.getItem('upgradePrice')) || 10;
+    let clicksPerSecond = parseInt(localStorage.getItem('clicksPerSecond')) || 0;
 
-        const upgradeButton = document.getElementById('upgradeButton');
-        const clickCountDisplay = document.getElementById('clickCount');
-        const circle = document.getElementById('circle');
+    const upgradeButton = document.getElementById('upgradeButton');
+    const clickCountDisplay = document.getElementById('clickCount');
+    const circle = document.getElementById('circle');
 
-        circle.addEventListener('click', () => {
-            clicks++;
-            updateDisplay();
-        });
+    circle.addEventListener('click', () => {
+      clicks++;
+      saveProgress();
+      updateDisplay();
+    });
 
-        upgradeButton.addEventListener('click', () => {
-            if (clicks >= upgradePrice) {
-                clicks -= upgradePrice;
-                upgradePrice += 10;
-                clicksPerSecond++;
-                updateDisplay();
-                upgradeButton.textContent = `Buy Upgrade: ${upgradePrice} clicks`;
-            }
-        });
-
-        function updateDisplay() {
-            clickCountDisplay.textContent = `Clicks: ${clicks}`;
-            upgradeButton.disabled = clicks < upgradePrice;
-        }
-
-        // Always running - increments by clicksPerSecond per second
-        setInterval(() => {
-            clicks += clicksPerSecond;
-            updateDisplay();
-        }, 1000);
-
-        function toggleColorChange() {
-            if (colorInterval) {
-                clearInterval(colorInterval);
-                colorInterval = null;
-            } else {
-                colorInterval = setInterval(() => {
-                    const r = Math.floor(Math.random() * 256);
-                    const g = Math.floor(Math.random() * 256);
-                    const b = Math.floor(Math.random() * 256);
-                    document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                }, 1000);
-            }
-        }
-
-        // Initial display update for button state
+    upgradeButton.addEventListener('click', () => {
+      if (clicks >= upgradePrice) {
+        clicks -= upgradePrice;
+        upgradePrice += 10;
+        clicksPerSecond++;
+        saveProgress();
         updateDisplay();
-    </script>
+        upgradeButton.textContent = `Buy Upgrade: ${upgradePrice} clicks`;
+      }
+    });
+
+    function updateDisplay() {
+      clickCountDisplay.textContent = `Clicks: ${clicks}`;
+      upgradeButton.textContent = `Buy Upgrade: ${upgradePrice} clicks`;
+      upgradeButton.disabled = clicks < upgradePrice;
+    }
+
+    function saveProgress() {
+      localStorage.setItem('clicks', clicks);
+      localStorage.setItem('upgradePrice', upgradePrice);
+      localStorage.setItem('clicksPerSecond', clicksPerSecond);
+    }
+
+    // Always running - increments by clicksPerSecond per second
+    setInterval(() => {
+      if (clicksPerSecond > 0) {
+        clicks += clicksPerSecond;
+        saveProgress();
+        updateDisplay();
+      }
+    }, 1000);
+
+    function toggleColorChange() {
+      if (colorInterval) {
+        clearInterval(colorInterval);
+        colorInterval = null;
+      } else {
+        colorInterval = setInterval(() => {
+          const r = Math.floor(Math.random() * 256);
+          const g = Math.floor(Math.random() * 256);
+          const b = Math.floor(Math.random() * 256);
+          document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        }, 1000);
+      }
+    }
+
+    // Initial display update for button state and price
+    updateDisplay();
+  </script>
 </body>
 </html>
