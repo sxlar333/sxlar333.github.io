@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- This is the document type declaration for HTML5. It informs the browser about the type of document and version of HTML being used. -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 2</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s;
+        }
+        
+        .container {
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p id="clickCount">Clicks: 0</p>
+        <div id="circle"></div>
+        <h1>my html website is very epik</h1>
+        <button onclick="window.location.href='test.html'">Return to test.html</button>
+        <button onclick="toggleColorChange()">Change Background Color</button>
+    </div>
+
+    <script>
+        let colorInterval;
+        let clicks = 0;
+        
+        document.getElementById('circle').addEventListener('click', () => {
+            clicks++;
+            document.getElementById('clickCount').textContent = `Clicks: ${clicks}`;
+        });
+        
+        function toggleColorChange() {
+            if (colorInterval) {
+                clearInterval(colorInterval);
+                colorInterval = null;
+            } else {
+                colorInterval = setInterval(() => {
+                    const r = Math.floor(Math.random() * 256);
+                    const g = Math.floor(Math.random() * 256);
+                    const b = Math.floor(Math.random() * 256);
+                    document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                }, 1000);
+            }
+        }
+    </script>
+
+    <style>
+        #circle {
+            width: 100px;
+            height: 100px;
+            background-color: #3498db;
+            border-radius: 50%;
+            margin: 20px auto;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        #circle:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</body>
+</html>
