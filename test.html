@@ -1,32 +1,146 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>html</title>
-  </head>
-  
-  <body>
-    <a href="index.html">
-    <button>Go to Landing</button>
-</a>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Game Library</title>
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #fafafa;
+    color: #111;
+    padding: 40px;
+    max-width: 700px;
+    margin: auto;
+  }
 
-  </body>
+  h1 { font-size: 40px; margin-bottom: 20px; font-weight: 700; }
+  .game-list { display: flex; flex-direction: column; gap: 14px; }
+  .game { padding: 14px 18px; background: white; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); font-size: 20px; cursor: pointer; border: 1px solid #e7e7e7; transition: transform 0.15s ease, box-shadow 0.15s ease; user-select: none; }
+  .game:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+  a { text-decoration: none; color: inherit; display: block; }
 
-
-  <body>
-    <h1>ts is html broski</h1>
-    <p>bro how tf do i use html</p>
-   
-  </body>
-
+  /* Modal overlay */
+  #gameOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+  #gameCanvas { background: #000; border-radius: 12px; max-width: 90%; max-height: 80%; }
+  #closeGame { position: absolute; top: 20px; right: 20px; background: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; }
+</style>
+</head>
 <body>
+<h1>Game Library</h1>
+<div class="game-list" id="gameList"></div>
+<hr style="margin:40px 0; border:none; border-top:1px solid #ddd;" />
+<h2>Built-In Games</h2>
+<p>These games run directly on this page.</p>
+<div class="game-list" id="builtInList"></div>
 
-    <button onclick="window.location.href='https://www.google.com';">
-        Go to Example Website
-    </button>
+<div id="gameOverlay">
+  <button id="closeGame">×</button>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+</div>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const games = [
+    { name: "Tetris", url: "games/tetris/index.html" },
+    { name: "Breakout", url: "games/breakout/index.html" },
+    { name: "2048", url: "games/2048/index.html" },
+    { name: "Asteroids", url: "games/asteroids/index.html" },
+    { name: "Flappy Bird", url: "games/flappy/index.html" }
+  ];
+
+  const container = document.getElementById('gameList');
+  games.forEach(game => {
+    const link = document.createElement('a');
+    link.href = game.url; link.target = '_blank';
+    const div = document.createElement('div'); div.className = 'game'; div.textContent = game.name;
+    link.appendChild(div); container.appendChild(link);
+  });
+
+  const builtIn = document.getElementById('builtInList');
+  const playSnakeBtn = document.createElement('div');
+  playSnakeBtn.className = 'game'; playSnakeBtn.textContent = 'Play Snake'; builtIn.appendChild(playSnakeBtn);
+  const playPongBtn = document.createElement('div');
+  playPongBtn.className = 'game'; playPongBtn.textContent = 'Play Pong'; builtIn.appendChild(playPongBtn);
+
+  const overlay = document.getElementById('gameOverlay');
+  const canvas = document.getElementById('gameCanvas');
+  const closeBtn = document.getElementById('closeGame');
+  const ctx = canvas.getContext('2d');
+
+  let currentInterval = null;
+  let currentAnimationFrame = null;
+  function stopCurrentGame(){
+    if(currentInterval){ clearInterval(currentInterval); currentInterval=null; }
+    if(currentAnimationFrame){ cancelAnimationFrame(currentAnimationFrame); currentAnimationFrame=null; }
+  }
+  function showOverlay(){ overlay.style.display='flex'; }
+  function hideOverlay(){ overlay.style.display='none'; stopCurrentGame(); }
+  closeBtn.addEventListener('click', ()=>{ hideOverlay(); });
+
+  window.loadSnake = function(){
+    stopCurrentGame(); showOverlay();
+    let px=10, py=10, gs=20, tc=20;
+    let ax=15, ay=15; let xv=0, yv=0; let trail=[], tail=5; let score=0;
+
+    function keyPush(evt){ switch(evt.key){ case 'ArrowLeft': xv=-1; yv=0; break; case 'ArrowUp': xv=0; yv=-1; break; case 'ArrowRight': xv=1; yv=0; break; case 'ArrowDown': xv=0; yv=1; break; } }
+    window.addEventListener('keydown', keyPush);
+
+    currentInterval = setInterval(()=>{
+      px+=xv; py+=yv;
+      if(px<0) px=tc-1; if(px>tc-1) px=0; if(py<0) py=tc-1; if(py>tc-1) py=0;
+      ctx.fillStyle='black'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='lime'; for(let i=0;i<trail.length;i++){
+        ctx.fillRect(trail[i].x*gs, trail[i].y*gs, gs-2, gs-2);
+        if(trail[i].x===px && trail[i].y===py) tail=5;
+      }
+      trail.push({x:px, y:py}); while(trail.length>tail) trail.shift();
+      if(ax===px && ay===py){ tail++; ax=Math.floor(Math.random()*tc); ay=Math.floor(Math.random()*tc); score++; }
+      ctx.fillStyle='red'; ctx.fillRect(ax*gs, ay*gs, gs-2, gs-2);
+      ctx.fillStyle='white'; ctx.font='20px sans-serif'; ctx.fillText('Score: '+score, 10, 25);
+    }, 1000/10);
+  };
+
+  window.loadPong = function(){
+    stopCurrentGame(); showOverlay();
+    let x=canvas.width/2, y=canvas.height/2;
+    let baseDx=4, baseDy=3;
+    let dx=baseDx*(Math.random()>0.5?1:-1), dy=baseDy*(Math.random()>0.5?1:-1);
+    let paddleY=(canvas.height-100)/2, paddleHeight=100, paddleX=canvas.width-20; let score=0;
+    const maxSpeed = 15;
+
+    function onMouseMove(e){ const rect=canvas.getBoundingClientRect(); paddleY=e.clientY-rect.top-paddleHeight/2; if(paddleY<0) paddleY=0; if(paddleY+paddleHeight>canvas.height) paddleY=canvas.height-paddleHeight; }
+    window.addEventListener('mousemove', onMouseMove);
+
+    function loop(){
+      ctx.fillStyle='black'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      x+=dx; y+=dy;
+      if(y<0 || y>canvas.height){ dy=-dy; }
+      // reset score and speed if ball touches right edge
+      if(x>canvas.width){
+        score=0;
+        dx=baseDx*(Math.random()>0.5?1:-1);
+        dy=baseDy*(Math.random()>0.5?1:-1);
+      }
+      if(x<0){ dx=-dx; }
+      if(x>paddleX-10 && y>paddleY && y<paddleY+paddleHeight){
+        dx=-Math.abs(dx); const hitPos=(y-paddleY)/paddleHeight-0.5; dy+=hitPos*2;
+        score++;
+        dx = Math.sign(dx) * Math.min(Math.abs(dx)*1.05, maxSpeed);
+        dy = Math.sign(dy) * Math.min(Math.abs(dy)*1.05, maxSpeed);
+      }
+      ctx.fillStyle='white'; ctx.fillRect(paddleX,paddleY,10,paddleHeight);
+      ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='white'; ctx.font='20px sans-serif'; ctx.fillText('Score: '+score, 10, 25);
+      currentAnimationFrame=requestAnimationFrame(loop);
+    }
+    loop();
+  };
+
+  playSnakeBtn.addEventListener('click',()=>window.loadSnake());
+  playPongBtn.addEventListener('click',()=>window.loadPong());
+});
+</script>
 </body>
-
-
-
-
-<html>
+</html>
